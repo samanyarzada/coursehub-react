@@ -1,21 +1,31 @@
-export default function Summary({ selectedCount, totalCredits }) {
-  let status;
-  if (totalCredits === 0) {
-    status = "No enrollment";
-  } else if (totalCredits < 6) {
-    status = "Part-time";
-  } else {
-    status = "Full-time";
-  }
-  let statusMessage;
+const FULL_TIME_CREDITS = 6;
 
+function getStatus(totalCredits) {
   if (totalCredits === 0) {
-    statusMessage = "You haven't selected any courses yet.";
-  } else if (totalCredits < 6) {
-    statusMessage = "You are enrolled part-time.";
-  } else {
-    statusMessage = "You have enough credits for full-time enrollment.";
+    return {
+      label: "No enrollment",
+      message: "You haven't selected any courses yet.",
+      tone: "error",
+    };
   }
+  if (totalCredits < FULL_TIME_CREDITS) {
+    return {
+      label: "Part-time",
+      message: `You are enrolled part-time. ${FULL_TIME_CREDITS - totalCredits} more credits for full-time.`,
+      tone: "warning",
+    };
+  }
+  return {
+    label: "Full-time",
+    message: "You have enough credits for full-time enrollment.",
+    tone: "success",
+  };
+}
+
+export default function Summary({ selectedCount, totalCredits, enrolled, onEnroll }) {
+  const status = getStatus(totalCredits);
+  const progress = Math.min((totalCredits / FULL_TIME_CREDITS) * 100, 100);
+
   return (
     <div className="summary-card">
       <h2>Enrollment Summary</h2>
@@ -30,19 +40,35 @@ export default function Summary({ selectedCount, totalCredits }) {
         <strong>{totalCredits}</strong>
       </div>
 
+      <div
+        className="progress"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={FULL_TIME_CREDITS}
+        aria-valuenow={Math.min(totalCredits, FULL_TIME_CREDITS)}
+        aria-label="Progress toward full-time credits"
+      >
+        <div className={`progress-bar tone-${status.tone}`} style={{ width: `${progress}%` }} />
+      </div>
+
       <div className="summary-divider"></div>
 
-     <div className={`status ${status === "No enrollment" ? "status-error" : ""}`}>
-  <span className="status-dot"></span>
+      <div className={`status status-${status.tone}`}>
+        <span className="status-dot"></span>
 
-  <div>
-    <strong>{status}</strong>
-    <p>{statusMessage}</p>
-  </div>
-</div>
+        <div>
+          <strong>{status.label}</strong>
+          <p>{status.message}</p>
+        </div>
+      </div>
 
-      <button className="enroll-btn" disabled={selectedCount === 0}>
-        Enroll in Courses →
+      <button
+        type="button"
+        className="enroll-btn"
+        disabled={selectedCount === 0 || enrolled}
+        onClick={onEnroll}
+      >
+        {enrolled ? "✓ Enrolled" : "Enroll in Courses →"}
       </button>
     </div>
   );

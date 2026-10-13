@@ -7,29 +7,38 @@ export default function Schedule({ selectedCourse, onHandleDeleteCourse, selecte
           <p>Your selected courses</p>
         </div>
 
-        <span className="badge">{selectedCount} Courses</span>
+        <span className="badge">
+          {selectedCount} {selectedCount === 1 ? "Course" : "Courses"}
+        </span>
       </div>
 
-      {selectedCourse.map((course) => {
-        return (
-          <div className="schedule-list" key={course.id}>
-            
-            <div className="schedule-item">
+      {selectedCourse.length === 0 ? (
+        <div className="empty-state">
+          No courses yet. Add one from the list to build your schedule.
+        </div>
+      ) : (
+        <ul className="schedule-list">
+          {selectedCourse.map((course) => (
+            <li className="schedule-item" key={course.code}>
               <div>
                 <strong>{course.title}</strong>
-                <span>{course.schedule}</span>
+                <span>
+                  {course.schedule} · {course.credits} credits
+                </span>
               </div>
 
               <button
+                type="button"
                 className="remove-btn"
-                onClick={() => onHandleDeleteCourse(course.id)}
+                aria-label={`Remove ${course.title}`}
+                onClick={() => onHandleDeleteCourse(course.code)}
               >
                 ×
               </button>
-            </div>
-          </div>
-        );
-      })}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

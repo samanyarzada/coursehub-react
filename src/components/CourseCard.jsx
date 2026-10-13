@@ -1,18 +1,12 @@
-export default function CourseCard({
-  icon,
-  code,
-  title,
-  description,
-  instructor,
-  credits,
-  schedule,
-  onHandleAddCourse,
-  selectedCourse,
-}) {
+export default function CourseCard({ course, onHandleAddCourse, selectedCourse }) {
+  const { icon, code, title, description, instructor, credits, schedule } = course;
   const alreadyAdded = selectedCourse.some((item) => item.code === code);
+
   return (
-    <article className="course-card">
-      <div className="course-icon">{icon}</div>
+    <article className={`course-card ${alreadyAdded ? "is-added" : ""}`}>
+      <div className="course-icon" aria-hidden="true">
+        {icon}
+      </div>
 
       <div className="course-content">
         <span className="course-code">{code}</span>
@@ -28,19 +22,12 @@ export default function CourseCard({
         </div>
 
         <button
+          type="button"
           className="add-btn"
           disabled={alreadyAdded}
-          onClick={() =>
-            onHandleAddCourse({
-              id: crypto.randomUUID(),
-              code,
-              title,
-              credits,
-              schedule,
-            })
-          }
+          onClick={() => onHandleAddCourse(course)}
         >
-          {alreadyAdded ? "✓ Added" : "+ Add Course"}{" "}
+          {alreadyAdded ? "✓ Added" : "+ Add Course"}
         </button>
       </div>
     </article>
